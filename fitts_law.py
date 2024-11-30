@@ -5,7 +5,7 @@ import random
 import math
 import time
 import matplotlib.pyplot as plt
-import numpy as np  # ¼±Çü È¸±Í¸¦ À§ÇØ Ãß°¡
+import numpy as np  # ì„ í˜• íšŒê·€ë¥¼ ìœ„í•´ ì¶”ê°€
 from datetime import datetime
 
 # Fitts' Law Parameters
@@ -196,9 +196,12 @@ with open(filename, 'w') as f:
                 # Cursor stayed inside the target for HOLD_TIME
                 end_time = time.time()
                 if start_time:
-                    time_taken = end_time - start_time - HOLD_TIME;
+                    time_taken = end_time - start_time - HOLD_TIME
                     target_width = current_radius * 2  # Diameter of the target
-                    index_of_difficulty, movement_time = calculate_fitts_law(distance_to_target, target_width, time_taken)
+                    distance_moved = math.sqrt((current_target_x - previous_target_x) ** 2 + (current_target_y - previous_target_y) ** 2) if previous_target_x is not None and previous_target_y is not None else 0
+                    index_of_difficulty = math.log2((distance_moved / target_width) + 1) if distance_moved > 0 else 0
+                    movement_time = time_taken
+                    angle = calculate_angle(previous_target_x, previous_target_y, current_target_x, current_target_y) if previous_target_x is not None and previous_target_y is not None else 0
                     
                     # Calculate distance (D) and angle
                     if previous_target_x is not None and previous_target_y is not None:
@@ -265,12 +268,12 @@ for trial in trials_data:
 """"
 # Plot the results
 plt.figure()
-plt.scatter(ids, times, color='blue', label='Results')  # µ¥ÀÌÅÍ Æ÷ÀÎÆ® ±×¸®±â
+plt.scatter(ids, times, color='blue', label='Results')  # ë°ì´í„° í¬ì¸íŠ¸ ê·¸ë¦¬ê¸°
 
 # Linear regression
-A = np.vstack([ids, np.ones(len(ids))]).T  # X, y ÁØºñ
-m, b = np.linalg.lstsq(A, times, rcond=None)[0]  # È¸±Í¼± °è»ê
-plt.plot(ids, m * np.array(ids) + b, 'r', label='Linear regression')  # È¸±Í¼± ±×¸®±â
+A = np.vstack([ids, np.ones(len(ids))]).T  # X, y ì¤€ë¹„
+m, b = np.linalg.lstsq(A, times, rcond=None)[0]  # íšŒê·€ì„  ê³„ì‚°
+plt.plot(ids, m * np.array(ids) + b, 'r', label='Linear regression')  # íšŒê·€ì„  ê·¸ë¦¬ê¸°
 
 plt.xlabel('Index of Difficulty (ID)')
 plt.ylabel('Time (seconds)')
@@ -300,5 +303,4 @@ plt.savefig(f"{name}_{device_name}_{current_time}_fitts_law_result.png")  # Save
 
 # Show the plot
 plt.show()
-
 
