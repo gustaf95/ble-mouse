@@ -5,7 +5,7 @@
 
 MPU6050 mpu;
 Madgwick filter;
-BleMouse bleMouse;
+BleMouse bleMouse("ESP32_AirMouse");  // BLEMouse -> BleMouse
 
 #define FILTER_TYPE 7  // 7: Madgwick + Adaptive Kalman + Savitzky-Golay Filter
 
@@ -120,10 +120,10 @@ void loop() {
 
   if(bleMouse.isConnected())
   {
-    bleMouse.move(filteredZ/512, -filteredX/512);
+    bleMouse.move(filteredZ/256, -filteredX/256);
   }
 
-  delay(10);
+  delay(20); // 루프 딜레이
 }
 
 // Adaptive Kalman Filter function
